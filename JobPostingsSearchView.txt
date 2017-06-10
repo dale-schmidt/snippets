@@ -1,0 +1,1061 @@
+<div ng-controller="jobPostingController as jpVm">
+    <div id="search-results" class="section-container bg-silver">
+        <!-- BEGIN container -->
+        <div class="container">
+            <!-- BEGIN search-container -->
+            <div class="search-container">
+                <!-- BEGIN search-content -->
+                <div class="search-content" id="searchContent" ng-style="{'width': jpVm.searchContainerWidth}">
+                    <!-- BEGIN search-toolbar -->
+                    <div class="search-toolbar">
+                        <!-- BEGIN row -->
+                        <div class="row">
+                            <!-- BEGIN col-6 -->
+                            <div class="col-xs-12 col-md-6">
+                                <form id="searchForm" ng-submit="jpVm.search()">
+                                    <input type="text" class="form-control input-white" placeholder="Search for Job Postings" id="searchParameters" name="searchParameters" ng-model="jpVm.searchParameters.searchString" />
+                                </form>
+                            </div>
+                            <!-- END col-6 -->
+                            <!-- BEGIN col-6 -->
+                            <div class="col-xs-12 col-md-6 text-right" id="searchButtonContainer">
+                                <button type="button" class="btn btn-inverse" id="search" ng-click="jpVm.search()"><i class="fa fa-search"></i> Search</button>
+                                <button type="button" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" id="list">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                                <ul class="dropdown-menu pull-right">
+                                    <li id="resultsTitle">Results Per Page</li>
+                                    <li class="divider"></li>
+                                    <li><a href="javascript:;" class="perPage" ng-click="jpVm.changeFilter('itemsPerPage', 5)">5 <i class="fa fa-check" ng-if="jpVm.searchParameters.itemsPerPage == 5"></i></a></li>
+                                    <li><a href="javascript:;" class="perPage" ng-click="jpVm.changeFilter('itemsPerPage', 10)">10 <i class="fa fa-check" ng-if="jpVm.searchParameters.itemsPerPage == 10"></i></a></li>
+                                    <li><a href="javascript:;" class="perPage" ng-click="jpVm.changeFilter('itemsPerPage', 20)">20 <i class="fa fa-check" ng-if="jpVm.searchParameters.itemsPerPage == 20"></i></a></li>
+                                </ul>
+                                <a href="javascript:;" class="btn btn-white btn-white-without-border" ng-show="jpVm.jobPostings.length && jpVm.tabindex <= 1" id="toggleView" ng-click="jpVm.toggleView()"><i class="fa fa-map"></i> Map View</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END search-toolbar -->
+                    <div ng-style="{'margin-bottom': jpVm.blankSpace}"></div>
+                    <p id="totalResults" ng-if="jpVm.totalResults > 1">Found {{jpVm.totalResults}} postings</p>
+
+                    <!-- END col-6 -->
+                    <uib-tabset justified="true" active="jpVm.tabindex" ng-show="jpVm.mapMode == false && jpVm.searched == true">
+                        <h4 ng-show="jpVm.totalResults == 0">No results</h4>
+                        <uib-tab index="0" heading="In-House Deploy" ng-click="jpVm.deploySearch()" active="jpVm.active.deploy">
+                            <deploy-search searchParameters="jpVm.searchParameters.searchString"></deploy-search>
+                        </uib-tab>
+                        <uib-tab index="1" heading="Our Affiliates" ng-click="jpVm.affiliateSearch()" active="jpVm.active.affiliate">
+                            <div class="search-item-container result-list" id="jobPostingContainer">
+                                <div class="item-row" ng-repeat="posting in jpVm.jobPostings" ng-mousedown="jpVm.clickLog()">
+                                    <a ng-href="/jobpostings/{{posting.id}}">
+                                        <div class="item">
+                                            <div class="positionName">
+                                                <h4 class="title">{{posting.positionName}}</h4>
+                                                <span class="days-ago">
+                                                    <small>Posted {{posting.daysAgo}}</small>
+                                                </span>
+                                            </div>
+                                            <div class="result-info col-s-5 col-xs-6">
+                                                <div class="float-left">
+                                                    <p class="desc"><strong>{{posting.companyName}}</strong></p>
+                                                    <p class="desc">{{posting.location}}</p>
+                                                    <p class="desc" ng-show="posting.jobTagsString">Tags: {{posting.jobTagsString}}</p>
+
+                                                </div>
+                                            </div>
+                                            <div class="result-info2 col-s-3 col-xs-6">
+                                                <div class="float-left inline">
+
+                                                    <p class="desc">{{posting.compensationString}}</p>
+                                                    <p class="desc">{{posting.experienceLevel}}</p>
+                                                    <p class="desc">{{posting.duration}}</p>
+                                                </div>
+                                                <div class="applied" ng-show="posting.applied"><h4 class="appliedText">Applied! <i class="fa fa-check-circle"></i></h4></div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </uib-tab>
+                        <uib-tab index="2" heading="Indeed.com" ng-click="jpVm.indeedSearch()" active="jpVm.active.indeed">
+                            <div id="indeedLink"><span id="indeed_at"><a title="Job Search" href="https://www.indeed.com" rel="nofollow">jobs by <img alt=Indeed src="https://www.indeed.com/p/jobsearch.gif" style="border: 0; vertical-align: middle;"></a></span></div>
+                            <div class="search-item-container result-list" id="jobPostingContainer">
+                                <div class="item-row" ng-repeat="posting in jpVm.jobPostings" ng-mousedown="jpVm.clickLog()">
+                                    <a ng-href="{{posting.url}}">
+                                        <div class="item">
+                                            <div class="positionName">
+                                                <h4 class="title">{{posting.jobtitle}}</h4>
+                                                <span class="days-ago">
+                                                    <small>Posted {{posting.formattedRelativeTime}}</small>
+                                                </span>
+                                            </div>
+                                            <div class="result-info col-s-5 col-xs-6">
+                                                <div class="float-left">
+                                                    <p class="desc"><strong>{{posting.company}}</strong></p>
+                                                    <p class="desc">{{posting.formattedLocationFull}}, {{posting.country}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="result-info2 col-s-3 col-xs-6">
+                                                <div class="float-left inline">
+                                                    <p class="desc" ng-bind-html="jpVm.sanitize(posting.snippet)"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </uib-tab>
+                        <uib-tab index="4" heading="USAJOBS.gov" ng-click="jpVm.usaJobsSearch()" active="jpVm.active.usaJobs">
+                            <div class="search-item-container result-list" id="jobPostingContainer">
+                                <div class="item-row" ng-repeat="posting in jpVm.jobPostings" ng-mousedown="jpVm.clickLog()">
+                                    <a ng-href="{{posting.MatchedObjectDescriptor.ApplyURI[0]}}">
+                                        <div class="item">
+                                            <div class="positionName">
+                                                <h4 class="title">{{posting.MatchedObjectDescriptor.PositionTitle}}</h4>
+                                                <span class="days-ago">
+                                                    <small>Posted {{posting.daysAgo}}</small>
+                                                </span>
+                                            </div>
+                                            <div class="result-info col-s-5 col-xs-6">
+                                                <div class="float-left">
+                                                    <p class="desc"><strong>{{posting.MatchedObjectDescriptor.OrganizationName}}</strong></p>
+                                                    <p class="desc">{{posting.MatchedObjectDescriptor.DepartmentName}}</p>
+                                                    <p class="desc">{{posting.MatchedObjectDescriptor.PositionLocationDisplay}}</p>
+
+                                                </div>
+                                            </div>
+                                            <div class="result-info2 col-s-3 col-xs-6">
+                                                <div class="float-left inline">
+                                                    <p class="desc">{{posting.remuneration}}</p>
+                                                    <p class="desc">{{posting.duration}}</p>
+                                                    <p class="desc" ng-show="posting.categories">Categories: {{posting.categories}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </uib-tab>
+                        <uib-tab index="5" heading="Upwork.com" ng-click="jpVm.upworkSearch()" active="jpVm.active.upwork">
+                            <div class="search-item-container result-list" id="jobPostingContainer">
+                                <div class="item-row" ng-repeat="posting in jpVm.jobPostings" ng-mousedown="jpVm.clickLog()">
+                                    <a ng-href="{{posting.url}}">
+                                        <div class="item">
+                                            <div class="positionName">
+                                                <h4 class="title">{{posting.title}}</h4>
+                                                <span class="days-ago">
+                                                    <small>Posted {{posting.daysAgo}}</small>
+                                                </span>
+                                            </div>
+                                            <div class="result-info col-s-5 col-xs-6">
+                                                <div class="float-left">
+                                                    <p class="desc">{{posting.duration}}</p>
+                                                    <p class="desc">{{posting.job_type}}</p>
+                                                    <p class="desc" ng-show="posting.skills">Categories: {{posting.skills}}</p>
+                                                </div>
+                                            </div>
+                                            <div class="result-info2 col-s-3 col-xs-6">
+                                                <div class="float-left inline">
+                                                    <p class="desc">{{posting.workload}}</p>
+                                                    <p class="desc">{{posting.snippet}}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </uib-tab>
+                    </uib-tabset>
+
+                    <!-- BEGIN pagination -->
+                    <uib-pagination ng-model="jpVm.searchParameters.currentPage" total-items="jpVm.totalResults" max-size="jpVm.maxSize" items-per-page="jpVm.searchParameters.itemsPerPage" boundary-link="true" ng-click="jpVm.search()" ng-if="jpVm.totalResults > jpVm.searchParameters.itemsPerPage"></uib-pagination>
+                    <!-- END pagination -->
+                </div>
+                <!-- END row -->
+                <!-- END search-toolbar -->
+                <!-- BEGIN search-item-container -->
+                <!-- BEGIN search-sidebar -->
+                <div class="search-sidebar" id="searchSidebar" ng-show="jpVm.searched == true">
+                    <h4 class="title">Filter By</h4>
+                    <div id="filters">
+                        <div class="dropdown pull-left">
+                            <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
+                                Distance <span class="caret m-l-5"></span>
+                            </a>
+                            <ul class="dropdown-menu filter" role="menu">
+                                <li><a href="javascript:;" class="distance" ng-click="jpVm.changeFilter('distance', 8046.72)">5 or less miles <i class="fa fa-check" ng-if="jpVm.searchParameters.distance == 8046.72"></i></a></li>
+                                <li><a href="javascript:;" class="distance" ng-click="jpVm.changeFilter('distance', 16093.44)">10 or less miles <i class="fa fa-check" ng-if="jpVm.searchParameters.distance == 16093.44"></i></a></li>
+                                <li><a href="javascript:;" class="distance" ng-click="jpVm.changeFilter('distance', 32186.88)">20 or less miles <i class="fa fa-check" ng-if="jpVm.searchParameters.distance == 32186.88"></i></a></li>
+                                <li><a href="javascript:;" class="distance" ng-click="jpVm.changeFilter('distance', 64373.76)">40 or less miles <i class="fa fa-check" ng-if="jpVm.searchParameters.distance == 64373.76"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown pull-left" ng-hide="jpVm.tabindex == 2 || jpVm.tabindex == 4">
+                            <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
+                                Compensation <span class="caret m-l-5"></span>
+                            </a>
+                            <ul class="dropdown-menu filter" role="menu">
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 70000)">$70,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 70000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 80000)">$80,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 80000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 90000)">$90,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 90000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 100000)">$100,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 100000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 110000)">$110,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 110000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 120000)">$120,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 120000"></i></a></li>
+                                <li><a href="javascript:;" class="compensation" ng-click="jpVm.changeFilter('compensation', 130000)">$130,000+ per year <i class="fa fa-check" ng-if="jpVm.searchParameters.compensation == 130000"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown pull-left">
+                            <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
+                                Full- or Part- Time <span class="caret m-l-5"></span>
+                            </a>
+                            <ul class="dropdown-menu filter" role="menu">
+                                <li><a href="javascript:;" class="fullPart" ng-click="jpVm.changeFilter('fullPartId', 1)">Part-time <i class="fa fa-check" ng-if="jpVm.searchParameters.fullPartId == 1"></i></a></li>
+                                <li><a href="javascript:;" class="fullPart" ng-click="jpVm.changeFilter('fullPartId', 2)">Full-time <i class="fa fa-check" ng-if="jpVm.searchParameters.fullPartId == 2"></i></a></li>
+                                <li ng-show="jpVm.tabindex <= 1"><a href="javascript:;" class="fullPart" ng-click="jpVm.changeFilter('fullPartId', 3)">Part-time to full-time <i class="fa fa-check" ng-if="jpVm.searchParameters.fullPartId == 3"></i></a></li>
+                            </ul>
+                        </div>
+                        <div class="row" id="durationContainer" ng-hide="jpVm.tabindex == 4">
+                            <div class="dropdown pull-left">
+                                <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
+                                    Duration <span class="caret m-l-5"></span>
+                                </a>
+                                <ul class="dropdown-menu filter" role="menu">
+                                    <li><a href="javascript:;" class="duration" ng-click="jpVm.changeFilter('contractPermanentId', 1)">Contract <i class="fa fa-check" ng-if="jpVm.searchParameters.contractPermanentId == 1"></i></a></li>
+                                    <li ng-hide="jpVm.tabindex == 2"><a href="javascript:;" class="duration" ng-click="jpVm.changeFilter('contractPermanentId', 2)">Permanent <i class="fa fa-check" ng-if="jpVm.searchParameters.contractPermanentId == 2"></i></a></li>
+                                    <li ng-show="jpVm.tabindex <= 1"><a href="javascript:;" class="duration" ng-click="jpVm.changeFilter('contractPermanentId', 3)">Contract-to-hire <i class="fa fa-check" ng-if="jpVm.searchParameters.contractPermanentId == 3"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row" id="experienceContainer" ng-show="jpVm.tabindex <= 1">
+                            <div class="dropdown pull-left">
+                                <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
+                                    Exp. Level <span class="caret m-l-5"></span>
+                                </a>
+                                <ul class="dropdown-menu filter" role="menu">
+                                    <li><a href="javascript:;" class="experienceLevel" ng-click="jpVm.changeFilter('experienceLevelId', 1)">Entry Level <i class="fa fa-check" ng-if="jpVm.searchParameters.experienceLevelId == 1"></i></a></li>
+                                    <li><a href="javascript:;" class="experienceLevel" ng-click="jpVm.changeFilter('experienceLevelId', 2)">Mid-Level <i class="fa fa-check" ng-if="jpVm.searchParameters.experienceLevelId == 2"></i></a></li>
+                                    <li><a href="javascript:;" class="experienceLevel" ng-click="jpVm.changeFilter('experienceLevelId', 3)">Senior Level <i class="fa fa-check" ng-if="jpVm.searchParameters.experienceLevelId == 3"></i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="dropdown pull-left" id="jobTagContainer" ng-show="jpVm.tabindex <= 1">
+                            <ui-select class="multiple-select2 form-control" multiple="multiple" id="jobTags" theme="bootstrap" ng-model="jpVm.selectedJobTags" ng-change="jpVm.changeJobTags()">
+                                <ui-select-match placeholder="Job Tags">{{$item.keyword}}</ui-select-match>
+                                <ui-select-choices repeat="jobTag in jpVm.jobTags">{{jobTag.keyword}}</ui-select-choices>
+                            </ui-select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12"><button type="button" class="btn btn-default" ng-click="jpVm.reset()">Reset Search</button></div>
+                </div>
+                <!-- END search-sidebar -->
+                <div class="rounded" id="map" ng-show="jpVm.mapMode"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section pageInitScripts{
+    <script src="~/Scripts/sabio/select2.full.js"></script>
+    <script src="~/Scripts/select.js"></script>
+    <script>
+        sabio.moduleOptions.extraModuleDependencies.push("ui.select");
+    </script>
+}
+
+@section scripts {
+    <script type="text/javascript" src="https://gdc.indeed.com/ads/apiresults.js"></script>
+    <script src="~/Scripts/sabio.services.jobPosting.js"></script>
+    <script src="~/Scripts/app/services/jobPosting.js"></script>
+    <script src="~/Scripts/jquery.tmpl.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/sabio.service.jobTag.js"></script>
+    <script src="~/Scripts/app/services/jobTag.js"></script>
+    <script src="~/Scripts/sabio.services.jobapplication.js"></script>
+    <script src="~/Scripts/app/services/jobApplication.js"></script>
+    <script src="~/Scripts/sabio.services.globalevent.js"></script>
+    <script src="~/Scripts/app/services/globalEvent.js"></script>
+    <script src="~/Scripts/app/jobPosting/deployJobSearchComponent.js"></script>
+    <script src="~/Scripts/app/jobPosting/deployJobSearchController.js"></script>
+
+    <script type="text/javascript">
+
+        sabio.page.personId = @Model.Id;
+
+        (function () {
+            angular.module(APPNAME)
+                .controller('jobPostingController', JobPostingController);
+
+            JobPostingController.$inject = ['$baseController', '$scope', '$window', '$sabio', 'jobPostingService', 'jobTagService', 'jobApplicationService', 'globalEventService', '$sce'];
+
+            function JobPostingController($baseController, $scope, $window, $sabio, jobPostingService, jobTagService, jobApplicationService, globalEventService, $sce) {
+                var vm = this;
+                vm.$scope = $scope;
+                vm.$window = $window;
+                $baseController.merge(vm, $baseController);
+                vm.jobPostingService = jobPostingService;
+                vm.jobTagService = jobTagService;
+                vm.jobApplicationService = jobApplicationService;
+                vm.globalEventService = globalEventService;
+
+                // View Model
+                vm.personId = $sabio.personId;
+                vm.searchContainerWidth = "100%";
+                vm.blankSpace = "500px";
+                vm.maxSize = 5;
+                vm.searchDefaults = {
+                    distance: 0,
+                    compensation: 0,
+                    fullPartId: 0,
+                    contractPermanentId: 0,
+                    experienceLevelId: 0,
+                    isDeploy: false
+                };
+                vm.searchParameters = {
+                    searchString: "",
+                    itemsPerPage: 5,
+                    currentPage: 1,
+                    distance: 0,
+                    compensation: 0,
+                    fullPartId: 0,
+                    contractPermanentId: 0,
+                    experienceLevelId: 0,
+                    latitude: 0,
+                    longitude: 0,
+                    isDeploy: false
+                };
+                vm.indeedSearchParameters = {
+                    q: "",                                   // Search string
+                    l: "",                                   // Location
+                    radius: 25,                              // Distance
+                    jt: null,                                // Allowed values: "fulltime", "parttime", "contract", "internship", "temporary"
+                    start: 0,                                // Start page on this result index
+                    limit: 5,                                // Results to be returned
+                    useragent: navigator.userAgent
+                }
+                vm.usaJobsSearchParameters = {
+                    LocationName: "",                        // Location
+                    PositionScheduleTypeCode: null,          // 1 = Full Time, 2 = Part Time
+                    Page: 1,                                 // Current page
+                    ResultsPerPage: 5,                       // Items per page
+                    Radius: null                             // Distance
+                }
+                vm.upworkSearchParameters = {
+                    q: "",                                      // Search String
+                    workload: "",                               // "part_time" or "full_time"
+                    paging: ""                                  // "(currentPage - 1)*itemsPerPage;itemsPerPage"
+                }
+                vm.active = {
+                    deploy: true,
+                    affiliate: false,
+                    indeed: false,
+                    usaJobs: false,
+                    upwork: false
+                }
+                vm.searched = false;
+                vm.jobPostings = [];
+                vm.jobTags = [];
+                vm.selectedJobTags = [];
+                vm.mapMode = false;
+                vm.markers = [];
+                vm.map = null;
+                vm.tabindex = 0;
+                vm.deployJobPostings = [];
+                vm.indeedJobPostings = [];
+                vm.usaJobsJobPostings = [];
+
+                vm.deploySearch = _deploySearch;
+                vm.affiliateSearch = _affiliateSearch;
+                vm.search = _search;
+                vm.indeedSearch = _indeedSearch;
+                //vm.monsterSearch = _monsterSearch;
+                vm.usaJobsSearch = _usaJobsSearch;
+                vm.changeFilter = _changeFilter;
+                vm.changeJobTags = _changeJobTags;
+                vm.toggleView = _toggleView;
+                vm.sanitize = _sanitize;
+                vm.clickLog = _clickLog;
+                vm.reset = _reset;
+
+                _getJobTags();
+                _getCookies();
+
+                // Fold
+                function _reset() {
+                    vm.searchParameters = {
+                        searchString: "",
+                        itemsPerPage: 5,
+                        currentPage: 1,
+                        distance: 0,
+                        compensation: 0,
+                        fullPartId: 0,
+                        contractPermanentId: 0,
+                        experienceLevelId: 0,
+                        latitude: 0,
+                        longitude: 0,
+                        isDeploy: false
+                    };
+                    document.cookie = 'submissionObject=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                    document.cookie = 'tabindex=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+                    vm.$window.location.reload();
+                }
+
+                function _setActiveTab() {
+                    vm.active = {
+                        deploy: false,
+                        affiliate: false,
+                        indeed: false,
+                        usaJobs: false
+                    };
+                    switch (vm.tabindex) {
+                        case 0:
+                            vm.active.deploy = true;
+                            break;
+                        case 1:
+                            vm.active.affiliate = true;
+                            break;
+                        case 2:
+                            vm.active.indeed = true;
+                            break;
+                        case 4:
+                            vm.active.usaJobs = true;
+                            break;
+                    }
+                }
+
+                function _getCookies() {
+                    var submissionObject = _readCookie('submissionObject');
+                    var tabindex = _readCookie('tabindex');
+                    if (tabindex !== undefined) {
+                        vm.tabindex = parseInt(tabindex);
+                        if (submissionObject !== undefined) {
+                            vm.searchParameters = JSON.parse(submissionObject);
+                            _setActiveTab();
+                            _search();
+                        }
+                    }
+                }
+
+                function _readCookie(name) {
+                    var value = "; " + document.cookie;
+                    var parts = value.split("; " + name + "=");
+                    if (parts.length == 2) {
+                        return parts.pop().split(";").shift();
+                    }
+                }
+
+                function _clickLog() {
+                    _saveCookie();
+                    var engineId = vm.tabindex + 1;
+                    vm.jobPostingService.clickLog(engineId, _clickLogSuccess, _clickLogError);
+                }
+
+                function _clickLogSuccess(data) {
+
+                }
+
+                function _clickLogError(data) {
+
+                }
+
+                function _saveCookie() {
+                    document.cookie = "submissionObject=" + JSON.stringify(vm.searchParameters);
+                    document.cookie = "tabindex=" + vm.tabindex;
+                }
+
+                // Search functions
+                function _deploySearch() {
+                    vm.tabindex = 0;
+                    vm.searchParameters.isDeploy = true;
+                    vm.searchParameters.currentPage = 1;
+                    _searchSend();
+                }
+
+                function _affiliateSearch() {
+                    vm.tabindex = 1;
+                    vm.searchParameters.isDeploy = false;
+                    vm.searchParameters.currentPage = 1;
+                    _searchSend();
+                }
+
+                function _search() {
+                    if (!vm.searched) {
+                        vm.searched = true;
+                    }
+                    vm.$window.scrollTo(0, 0);
+                    switch (vm.tabindex) {
+                        case 0:
+                            vm.searchParameters.isDeploy = true;
+                            _searchSend();
+                            break;
+                        case 1:
+                            vm.searchParameters.isDeploy = false;
+                            _searchSend();
+                            break;
+                        case 2:
+                            _indeedSearchSend();
+                            break;
+                        //case 3:
+                        //    _monsterSearch();
+                        //    return;
+                        case 4:
+                            _usaJobsSearchSend();
+                            break;
+                        case 5:
+                            _upworkSearchSend();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                function _searchSend() {
+                    var jobTagStringArray = [];
+                    if (vm.selectedJobTags) {
+                        for (var i = 0; i < vm.selectedJobTags.length; i++) {
+                            jobTagStringArray.push("&jobTagIds[]=" + vm.selectedJobTags[i].id);
+                        }
+                    }
+                    var jobTagString = jobTagStringArray.join("");
+
+                    var searchRequest = "?" + $.param(vm.searchParameters) + jobTagString;
+
+                    vm.jobPostingService.searchByKeyword(searchRequest, _searchSuccess, _searchError);
+                }
+
+                function _searchSuccess(data) {
+                    vm.blankSpace = "0px";
+                    if (data.items) {
+                        vm.jobPostings = data.items;
+                        vm.totalResults = vm.jobPostings[0].totalRows;
+                        vm.jobPostings = _formatJobPostings(vm.jobPostings);
+                        if (document.querySelectorAll("body")[0].clientWidth > 720) {
+                            vm.searchContainerWidth = "75%";
+                        }
+                        if (vm.mapMode) {
+                            _initMap(data.items);
+                        }
+                        vm.jobApplicationService.getByPersonId(vm.personId, _getApplicationSuccess, _getApplicationError)
+                    } else {
+                        vm.totalResults = 0;
+                        vm.jobPostings = [];
+                    }
+                }
+
+                function _searchError(data) {
+                    toastr.error("Search failed");
+                }
+
+                function _getApplicationSuccess(data) {
+                    if (data.items) {
+                        var jobPostingIds = [];
+                        for (var i = 0; i < data.items.length; i++) {
+                            jobPostingIds.push(data.items[i].jobPostingId);
+                        }
+                        for (var i = 0; i < vm.jobPostings.length; i++) {
+                            var jobPostingIndex = jobPostingIds.indexOf(vm.jobPostings[i].id);
+                            if (jobPostingIndex >= 0) {
+                                vm.$scope.$apply(function () {
+                                    vm.jobPostings[i].applied = true;
+                                })
+                            }
+                        }
+                    }
+                }
+
+                function _getApplicationError(data) {
+                    toastr.error("Failed to get application info");
+                }
+
+                // Job Posting format functions
+                function _formatJobPostings(jobPostings) {
+                    for (i = 0; i < jobPostings.length; i++) {
+                        if (jobPostings[i].jobTags) {
+                            jobPostings[i].jobTagsString = _jobTagsStringBuilder(jobPostings[i]);
+                        }
+                        jobPostings[i].daysAgo = _daysAgoStringBuilder(jobPostings[i].dateCreated);
+                        if (jobPostings[i].city || jobPostings[i].stateProvinceName || jobPostings[i].countryName) {
+                            jobPostings[i].location = _locationStringBuilder(jobPostings[i]);
+                        }
+                        if (jobPostings[i].compensation) {
+                            jobPostings[i].compensationString = _compensationStringBuilder(jobPostings[i].compensation, jobPostings[i].compensationRateId);
+                        }
+                        if (jobPostings[i].experienceLevelId) {
+                            jobPostings[i].experienceLevel = _convertExperienceLevelId(jobPostings[i].experienceLevelId);
+                        }
+                        if (jobPostings[i].fullPartId || jobPostings[i].contractPermanentId) {
+                            jobPostings[i].duration = _durationStringBuilder(jobPostings[i].fullPartId, jobPostings[i].contractPermanentId);
+                        }
+                    }
+                    return jobPostings;
+                }
+
+                function _jobTagsStringBuilder(jobPosting) {
+                    var jobTagsArray = [];
+                    for (j = 0; j < jobPosting.jobTags.length; j++) {
+                        jobTagsArray.push(jobPosting.jobTags[j].keyword);
+                    }
+                    var jobTagsString = jobTagsArray.join(", ");
+                    return jobTagsString;
+                }
+
+                function _daysAgoStringBuilder(date) {
+                    var t = date.split(/[- : T]/);
+                    var d = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+                    var today = new Date();
+                    var daysAgo = parseInt((today - d) / 86400000);
+                    if (daysAgo == 1) {
+                        daysAgo = daysAgo + " day ago";
+                    } else {
+                        daysAgo = daysAgo + " days ago";
+                    }
+                    return daysAgo;
+                }
+
+                function _locationStringBuilder(jobPosting) {
+                    var locationArray = [];
+                    if (jobPosting.city) {
+                        locationArray.push(jobPosting.city);
+                    }
+                    if (jobPosting.stateProvinceName) {
+                        locationArray.push(jobPosting.stateProvinceName);
+                    }
+                    if (jobPosting.countryName) {
+                        locationArray.push(jobPosting.countryName);
+                    }
+                    var locationString = locationArray.join(", ");
+                    return locationString;
+                }
+
+                function _convertExperienceLevelId(id) {
+                    var string = "";
+                    switch (id) {
+                        case 1:
+                            string = "Entry level";
+                            break;
+                        case 2:
+                            string = "Mid-level";
+                            break;
+                        case 3:
+                            string = "Senior level";
+                            break;
+                        default:
+                            break;
+                    }
+                    return string;
+                }
+
+                function _compensationStringBuilder(amt, rate) {
+                    var formattedAmt = amt.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                    var formattedRate = "";
+                    if (rate) {
+                        switch (rate) {
+                            case 1:
+                                formattedRate = " per hour";
+                                break;
+                            case 2:
+                                formattedRate = " per day";
+                                formattedAmt = formattedAmt.slice(0, -3);
+                                break;
+                            case 3:
+                                formattedRate = " per year";
+                                formattedAmt = formattedAmt.slice(0, -3);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    return "$" + formattedAmt + formattedRate;
+                }
+
+                function _durationStringBuilder(fullPartId, contractPermanentId) {
+                    var stringArray = [];
+                    if (fullPartId) {
+                        switch (fullPartId) {
+                            case 1:
+                                stringArray.push("Part-time");
+                                break;
+                            case 2:
+                                stringArray.push("Full-time");
+                                break;
+                            case 3:
+                                stringArray.push("Part-time to full-time");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (contractPermanentId) {
+                        switch (contractPermanentId) {
+                            case 1:
+                                stringArray.push("Contract");
+                                break;
+                            case 2:
+                                stringArray.push("Permanent");
+                                break;
+                            case 3:
+                                stringArray.push("Contract-to-hire");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    var string = stringArray.join(", ");
+                    return string;
+                }
+
+                function _sanitize(html_code) {
+                    return $sce.trustAsHtml(html_code);
+                }
+
+                // Indeed.com search functions
+                function _indeedSearch() {
+                    vm.tabindex = 2;
+                    vm.searchParameters.currentPage = 1;
+                    if (!vm.indeedSearchParameters.l) {
+                        _getCurrentPosition();
+                    } else {
+                        _indeedSearchSend();
+                    }
+                }
+
+                function _indeedSearchSend() {
+                    vm.indeedSearchParameters.q = vm.searchParameters.searchString;
+                    vm.indeedSearchParameters.radius = vm.searchParameters.distance * 0.000621371;
+                    if (vm.searchParameters.fullPartId == 1) {
+                        vm.indeedSearchParameters.jt = "parttime";
+                    } else if (vm.searchParameters.fullPartId == 2) {
+                        vm.indeedSearchParameters.jt = "fulltime";
+                    } else if (vm.searchParameters.contractPermanentId == 1) {
+                        vm.indeedSearchParameters.jt = "contract";
+                    } else {
+                        vm.indeedSearchParameters.jt = null;
+                    }
+                    vm.indeedSearchParameters.start = (vm.searchParameters.currentPage - 1) * vm.searchParameters.itemsPerPage;
+                    vm.indeedSearchParameters.limit = vm.searchParameters.itemsPerPage;
+                    vm.indeedSearchParameters.useragent = encodeURIComponent(vm.indeedSearchParameters.userAgent);
+                    var searchRequest = $.param(vm.indeedSearchParameters);
+                    vm.jobPostingService.searchIndeed(searchRequest, _indeedSearchSuccess, _indeedSearchError);
+                }
+
+                function _indeedSearchSuccess(data) {
+                    vm.$scope.$apply(function () {
+                        vm.jobPostings = data.item.results;
+                        vm.totalResults = data.item.totalResults;
+                        if (document.querySelectorAll("body")[0].clientWidth > 720) {
+                            vm.searchContainerWidth = "75%";
+                        }
+                        vm.blankSpace = "0px";
+                    })
+                }
+
+                function _indeedSearchError(data) {
+                    toastr.error("Failed to get job postings");
+                }
+
+                function _openIndeed(url) {
+                    window.location.href = url;
+                }
+
+                // USAJOBS search functions
+                function _usaJobsSearch() {
+                    vm.tabindex = 4;
+                    vm.searchParameters.currentPage = 1;
+                    if (!vm.usaJobsSearchParameters.LocationName) {
+                        _getCurrentPosition();
+                    } else {
+                        _usaJobsSearchSend();
+                    }
+                }
+
+                function _usaJobsSearchSend() {
+                    var keywordArray = vm.searchParameters.searchString.split(" ");
+                    var keywordString = keywordArray.join(";");
+
+                    if (vm.searchParameters.fullPartId == 1) {                      // Part Time
+                        vm.usaJobsSearchParameters.PositionScheduleTypeCode = 2;
+                    } else if (vm.searchParameters.fullPartId == 2) {               // Full Time
+                        vm.usaJobsSearchParameters.PositionScheduleTypeCode = 1;
+                    } else {
+                        vm.usaJobsSearchParameters.PositionScheduleTypeCode = null;
+                    }
+
+                    vm.usaJobsSearchParameters.Page = vm.searchParameters.currentPage;
+                    vm.usaJobsSearchParameters.ResultsPerPage = vm.searchParameters.itemsPerPage;
+                    if (vm.searchParameters.distance) {
+                        vm.usaJobsSearchParameters.Radius = vm.searchParameters.distance * 0.000621371;
+                    }
+                    var searchRequest = $.param(vm.usaJobsSearchParameters);
+                    searchRequest = searchRequest + "&Keyword=" + keywordString;
+
+                    vm.jobPostingService.searchUsaJobs(searchRequest, _usaJobsSearchSuccess, _usaJobsSearchError);
+                }
+
+                function _usaJobsSearchSuccess(data) {
+                    vm.$scope.$apply(function () {
+                        vm.totalResults = data.item.SearchResult.SearchResultCountAll;
+                        vm.jobPostings = data.item.SearchResult.SearchResultItems;
+                        vm.jobPostings = _formatUsaJobsJobPostings(vm.jobPostings);
+                        if (document.querySelectorAll("body")[0].clientWidth > 720) {
+                            vm.searchContainerWidth = "75%";
+                        }
+                        vm.blankSpace = "0px";
+                    })
+                }
+
+                function _usaJobsSearchError(data) {
+                    toastr.error("Failed to get search results");
+                }
+
+                // USAJOBS formatting functions
+                function _formatUsaJobsJobPostings(jobPostingsArray) {
+                    for (var i = 0; i < jobPostingsArray.length; i++) {
+                        jobPostingsArray[i].duration = _usaJobsDurationStringBuilder(jobPostingsArray[i]);
+                        if (jobPostingsArray[i].MatchedObjectDescriptor.JobCategory.length) {
+                            jobPostingsArray[i].categories = _usaJobsCategoriesStringBuilder(jobPostingsArray[i]);
+                        }
+                        jobPostingsArray[i].daysAgo = _usaJobsDaysAgoStringBuilder(jobPostingsArray[i]);
+                        if (jobPostingsArray[i].MatchedObjectDescriptor.PositionRemuneration.length) {
+                            jobPostingsArray[i].remuneration = _usaJobsRemunerationStringBuilder(jobPostingsArray[i].MatchedObjectDescriptor.PositionRemuneration[0]);
+                        }
+                    }
+                    return jobPostingsArray;
+                }
+
+                function _usaJobsDurationStringBuilder(jobPosting) {
+                    var durationString = jobPosting.MatchedObjectDescriptor.PositionSchedule[0].Name + ", " + jobPosting.MatchedObjectDescriptor.PositionOfferingType[0].Name;
+                    return durationString;
+                }
+
+                function _usaJobsCategoriesStringBuilder(jobPosting) {
+                    var categoriesArray = [];
+                    for (var j = 0; j < jobPosting.MatchedObjectDescriptor.JobCategory.length; j++) {
+                        categoriesArray.push(jobPosting.MatchedObjectDescriptor.JobCategory[j].Name);
+                    }
+                    var categories = categoriesArray.join(", ");
+                    return categories;
+                }
+
+                function _usaJobsDaysAgoStringBuilder(jobPosting) {
+                    var dateArray = jobPosting.MatchedObjectDescriptor.PublicationStartDate.split("-");
+                    var publicationDate = new Date(dateArray[0], dateArray[1] - 1, dateArray[2]);
+                    var today = new Date;
+                    var oneDay = 24 * 60 * 60 * 1000;
+
+                    var daysAgo = Math.floor((today.getTime() - publicationDate.getTime()) / (oneDay));
+                    if (daysAgo > 1) {
+                        daysAgo += " days ago";
+                    } else {
+                        daysAgo += " day ago";
+                    }
+                    return daysAgo;
+                }
+
+                function _usaJobsRemunerationStringBuilder(positionRemuneration) {
+                    var formattedMin = "$" + Number(positionRemuneration.MinimumRange).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                    formattedMin = formattedMin.slice(0, -3);
+                    var formattedMax = "$" + Number(positionRemuneration.MaximumRange).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                    formattedMax = formattedMax.slice(0, -3);
+
+                    var remuneration = formattedMin + " - " + formattedMax + " " + positionRemuneration.RateIntervalCode.toLowerCase();
+                    return remuneration;
+                }
+
+                // Filter functions
+                function _changeFilter(param, value) {
+                    if (vm.searchParameters[param] == value) {
+                        if (param == 'itemsPerPage') {
+                            return;
+                        }
+                        vm.searchParameters[param] = vm.searchDefaults[param];
+                    } else {
+                        vm.searchParameters[param] = value;
+                        if (param == 'distance' && vm.tabindex <= 1) {
+                            _getCurrentPosition();
+                        }
+                    }
+                    _search();
+                }
+
+                function _changeJobTags() {
+                    vm.searchParameters.jobTags = vm.selectedJobTags;
+                    _search();
+                }
+
+                // Location functions
+                function _getCurrentPosition() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(_getPositionSuccess, _getPositionError);
+                    }
+                }
+
+                function _getPositionError() {
+                    toastr.error("Failed to get position");
+                    vm.searchParameters.latitude = 0;
+                    vm.searchParameters.longitude = 0;
+                }
+
+                function _getPositionSuccess(position) {
+                    vm.searchParameters.latitude = position.coords.latitude;
+                    vm.searchParameters.longitude = position.coords.longitude;
+                    if (vm.tabindex > 1) {
+                        vm.globalEventService.getAddress(vm.searchParameters.latitude, vm.searchParameters.longitude, _getAddressSuccess, _getAddressError);
+                    }
+                }
+
+                function _getAddressSuccess(data) {
+                    var city = data.results[0].address_components[4].long_name;
+                    var stateProvince = data.results[0].address_components[5].long_name;
+                    var country = data.results[0].address_components[6].long_name;
+                    var zipCode = data.results[0].address_components[7].long_name;
+                    if (vm.tabindex == 2) {
+                        vm.indeedSearchParameters.l = city + "," + stateProvince;
+                        _indeedSearchSend();
+                    }
+                    if (vm.tabindex == 3) {
+                        vm.monsterSearchParameters.zip = zipCode;
+                        vm.monsterSearchParameters.cy = country;
+                        _monsterSearchSend();
+                    }
+                    if (vm.tabindex == 4) {
+                        vm.usaJobsSearchParameters.LocationName = city + "," + stateProvince;
+                        _usaJobsSearchSend();
+                    }
+                }
+
+                function _getAddressError(data) {
+                    toastr.error("Failed to get location information");
+                }
+
+                // Job tag functions
+                function _getJobTags() {
+                    vm.jobTagService.getAll(_getJobTagsSuccess, _getJobTagsError);
+                }
+
+                function _getJobTagsSuccess(data) {
+                    vm.jobTags = data.items;
+                }
+
+                function _getJobTagsError(data) {
+                    toastr.error("Failed to get job tags");
+                }
+
+                // Map functions
+                function _toggleView() {
+                    if (vm.mapMode) {
+                        vm.mapMode = false;
+                        _search();
+                    } else {
+                        vm.mapMode = true;
+                        _search();
+                    }
+                }
+
+                function _initMap(postingsArray) {
+                    _clearOverlays();
+                    vm.markers = [];
+
+                    if (!vm.map) {
+                        vm.map = new google.maps.Map($("#map")[0], {
+                            center: { lat: 33.9885, lng: -118.3869007 },
+                            zoom: 13
+                        });
+                    }
+
+                    var locations = [];
+
+                    for (var i = 0; i < postingsArray.length; i++) {
+                        if (postingsArray[i].latitude && postingsArray[i].longitude) {
+                            var loc = {
+                                title: postingsArray[i].positionName,
+                                location: {
+                                    lat: postingsArray[i].latitude,
+                                    lng: postingsArray[i].longitude
+                                }
+                            };
+                            locations.push(loc);
+                        }
+                    }
+
+
+                    var bounds = new google.maps.LatLngBounds();
+
+                    for (var i = 0; i < locations.length; i++) {
+                        var position = locations[i].location;
+                        var marker = new google.maps.Marker({
+                            map: vm.map,
+                            position: position,
+                            animation: google.maps.Animation.DROP,
+                            id: i
+                        });
+
+
+                        var contentString = '<h4><a href="/jobpostings/' + postingsArray[i].id + '">'
+                            + postingsArray[i].positionName + '</a></h4>'
+                            + '<h5>' + postingsArray[i].companyName + '</h5>';
+
+                        if (postingsArray[i].experienceLevelId) {
+                            var experienceLevel = '<p>' + _convertExperienceLevelId(postingsArray[i].experienceLevelId) + '</p>';
+                            contentString += experienceLevel;
+                        }
+
+                        if (postingsArray[i].compensation) {
+                            var compensation = '<p>' + _compensationStringBuilder(postingsArray[i].compensation, postingsArray[i].compensationRateId) + '</p>';
+                            contentString += compensation;
+                        }
+
+                        if (postingsArray[i].fullPartId || postingsArray[i].contractPermanentId) {
+                            var duration = '<p>' + _durationStringBuilder(postingsArray[i].fullPartId, postingsArray[i].contractPermanentId) + '</p>';
+                            contentString += duration;
+                        }
+
+
+                        let infoWindow = new google.maps.InfoWindow({
+                            content: contentString
+                        });
+
+                        marker.addListener("click", function () {
+                            _populateInfoWindow(this, infoWindow);
+                        });
+
+                        vm.markers.push(marker);
+
+                        bounds.extend(vm.markers[i].position);
+                    }
+
+                    vm.map.fitBounds(bounds);
+                    vm.map.panToBounds(bounds);
+
+
+                    google.maps.event.addDomListener(vm.map, "idle", function () {
+                        center = vm.map.getCenter();
+                    });
+
+                    $(window).resize(function () {
+                        vm.map.setCenter(center);
+                    });
+
+                    google.maps.event.trigger(vm.map, 'resize');
+                }
+
+                function _populateInfoWindow(marker, infowindow) {
+                    if (infowindow.marker != marker) {
+                        infowindow.marker = marker;
+                        infowindow.setContent(infowindow.content);
+                        infowindow.open(map, marker);
+                        infowindow.addListener("closeclick", function () {
+                            infowindow.marker = null;
+                        });
+                    }
+                };
+
+                function _clearOverlays() {
+                    for (i = 0; i < vm.markers.length; i++) {
+                        vm.markers[i].setMap(null);
+                    }
+                }
+            }
+        })();
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
+    </script>
+}
