@@ -1,0 +1,388 @@
+<style>
+        #viewAll {
+            margin-bottom: 5px;
+        }
+
+        #compensationRate {
+            margin-top: 1%;
+        }
+
+        .fullPartContainer {
+            padding-left: 10px;
+        }
+
+        .product {
+            background: #fff;
+            border: 1px solid #c5ced4;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            padding: 30px 30px 30px 30px;
+            margin-bottom: 15px;
+        }
+
+        #applications {
+            border-style: none;
+            text-align: center;
+        }
+
+        .product .application {
+            width: 100%;
+            display: inline-block;
+            border-style: solid;
+            border-color: rgb(197, 206, 212);
+            border-width: 1px;
+            border-radius: 3px;
+            padding: 10px 0 0 0;
+            margin: 0 0 5px 0;
+        }
+
+        .product .application:hover {
+            cursor: pointer;
+        }
+
+        .product .application:focus {
+            background-color: rgb(230, 230, 230);
+        }
+
+        .ui-select-match-item {
+            padding: 2px 2px 2px 2px;
+        }
+
+        .ui-select-container {
+            background-color: rgb(240, 243, 244);
+        }
+
+        #notes {
+            width: 100%;
+        }
+
+        .applications {
+            text-align: center;
+        }
+
+        .applicationFilter {
+            margin-bottom: 10px;
+        }
+
+        .application2ndColumn {
+            margin-top: 37px;
+        }
+
+        p .addressRead {
+            display: block;
+        }
+
+        .checkout-header {
+            padding: 20px 20px 5px 20px;
+            background: #586269;
+            -webkit-border-radius: 6px 6px 0 0;
+            -moz-border-radius: 6px 6px 0 0;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .checkout-header .row > div + div {
+            border-left: 1px solid #3E4A52;
+        }
+
+        .checkout {
+            background: #fff;
+            border-radius: 6px;
+            margin: 20px 5px 0 5px;
+            display: inline-block;
+            padding: 0 0 0 0;
+        }
+
+        .checkout-body {
+            padding: 25px 30px 15px 30px;
+            border-style: solid;
+            border-color: rgb(197, 206, 212);
+            border-width: 1px;
+        }
+
+        .checkout-footer {
+            padding: 25px 30px;
+            text-align: right;
+            background: #85878A;
+            -webkit-border-radius: 0 0 6px 6px;
+            -moz-border-radius: 0 0 6px 6px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .checkout-footer .btn.btn-white {
+            border-color: #fff;
+        }
+
+        .headerText {
+            color: white;
+        }
+
+        .displayInlineBlock {
+            display: inline-block;
+        }
+
+        .statusContainer {
+            float: right;
+        }
+
+        .btn.btn-default.resumeBtn {
+            float: left;
+            color: rgb(88, 98, 105);
+        }
+
+        .errorMessage {
+            color: red;
+        }
+    </style>
+}
+<!-- BEGIN #product -->
+<div id="product" class="section-container p-t-20">
+    <!-- BEGIN container -->
+    <div class="container">
+        <div ng-controller="jobPostingController as jpVm">
+            <!-- BEGIN breadcrumb -->
+            <ul class="breadcrumb m-b-10 f-s-12">
+                <li><a href="/home/index">Home</a></li>
+                <li><a href="/jobpostings/index">Job Search</a></li>
+                <li class="active">{{jpVm.breadcrumbText}}</li>
+            </ul>
+            <!-- END breadcrumb -->
+            <!-- BEGIN product -->
+            <!-- BEGIN Application Sidebar -->
+            <div ng-controller="jobApplicationController as appVm">
+                <div class="product col-md-2" id="applications" ng-show="jpVm.id">
+                    <h3>Applications</h3>
+                    <select class="applicationFilter" ng-model="appVm.selectedApplicationFilter" ng-options="filter.name for filter in appVm.applicationFilters track by filter.id" ng-change="appVm.changeApplicationFilter()"></select>
+                    <h5 ng-hide="jpVm.posting.applications.length">No applications yet</h5>
+                    <p ng-show="jpVm.posting.applications.length">{{jpVm.posting.applications.length}} total</p>
+                    <div class="application" tabindex="0" ng-repeat="application in appVm.filteredApplications" ng-click="appVm.viewApplication(application)" ng-style="{'background-color' : application.color}">
+                        <h5>{{application.firstName}} {{application.lastName}}</h5>
+                        <p>{{application.applicationStatus}}</p>
+                    </div>
+                    <uib-pagination ng-model="appVm.currentPage" total-items="jpVm.posting.applications.length" max-size="1" items-per-page="5" boundary-link="true" ng-change="appVm.changePage()" ng-if="jpVm.posting.applications.length > 5"></uib-pagination>
+                </div>
+                <!-- END Application Sidebar -->
+                <!-- BEGIN Application Viewer -->
+                <div class="col-md-10">
+                    <div class="col-md-1"></div>
+                    <div class="checkout col-md-10" ng-show="appVm.selectedApplication">
+                        <div class="checkout-header">
+                            <div class="displayInlineBlock">
+                                <h4 class="headerText">{{appVm.selectedApplication.firstName}} {{appVm.selectedApplication.lastName}}  <small class="headerText">{{appVm.selectedApplication.jobTitle}}</small></h4>
+                            </div>
+                            <div class="statusContainer">
+                                <h5 class="headerText" ng-hide="appVm.statusEdit">
+                                    {{appVm.selectedApplication.selectedStatus.name}}
+                                    <a href="" ng-click="appVm.changeStatus()"><i class="fa fa-pencil" ng-hide="appVm.statusEdit"></i></a>
+                                </h5>
+                                <h5>
+                                    <select class="applicationFilter" ng-model="appVm.selectedApplication.selectedStatus" ng-options="status.name for status in appVm.applicationStatuses track by status.name" ng-change="appVm.changeStatus()" ng-show="appVm.statusEdit"></select>
+                                    <a href="" ng-click="appVm.saveApplication()"><i class="fa fa-floppy-o" ng-show="appVm.statusEdit"></i></a>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="checkout-body">
+                            <h5>Cover Letter:</h5>
+                            <div ng-bind-html="appVm.sanitize(appVm.selectedApplication.coverLetter)"></div>
+                            <h5>Notes (private): <a href="" ng-click="appVm.editNotes()"><i class="fa fa-pencil" ng-hide="appVm.notesEdit"></i></a><a href="" ng-click="appVm.saveApplication()"><i class="fa fa-floppy-o" ng-show="appVm.notesEdit"></i></a></h5>
+                            <p ng-bind="appVm.selectedApplication.notes" ng-model="appVm.selectedApplication.notes" ng-hide="appVm.notesEdit"></p>
+                            <textarea type="text" rows="5" id="notes" ng-model="appVm.selectedApplication.notes" ng-show="appVm.notesEdit"></textarea>
+                        </div>
+                        <div class="checkout-footer">
+                            <button type="button" class="btn btn-default resumeBtn" ng-click="appVm.viewResume(appVm.selectedApplication.resume)">View Resume</button>
+                            <button type="button" class="btn btn-inverse" ng-click="appVm.closeApplication()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Application Viewer -->
+            <div class="col-md-12">
+                <h3 ng-show="jpVm.id">Edit Posting</h3>
+                <div class="product">
+                    <!-- begin form -->
+                    <form id="jobPosting" novalidate name="jobPosting">
+                        <div class="form-group">
+                            <label for="companyId">Company Name</label>
+                            <select name="companyId" class="form-control" id="companyName" ng-model="jpVm.selectedCompany" ng-options="company.name for company in jpVm.companies track by company.id" ng-hide="jpVm.id"></select>
+                            <p ng-show="jpVm.id">{{jpVm.posting.companyName}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="positionName">Position Name</label>
+                            <a href="" ng-click="jpVm.fieldEdit('positionName')"><i class="fa fa-pencil" ng-hide="jpVm.edit.positionName"></i></a>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.positionName && jpVm.id"></i></a>
+                            <p ng-hide="jpVm.edit.positionName">{{jpVm.posting.positionName}}</p>
+                            <span ng-hide="jobPosting.positionName.$valid" class="errorMessage"> (Required)</span>
+                            <input type="text" name="positionName" class="form-control" id="positionName" ng-model="jpVm.posting.positionName" ng-show="jpVm.edit.positionName" required />
+                        </div>
+                        <label ng-show="jpVm.id">Address</label>
+                        <a href="" ng-click="jpVm.fieldEdit('address')"><i class="fa fa-pencil" ng-hide="jpVm.edit.address"></i></a>
+                        <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.address && jpVm.id"></i></a>
+                        <div class="addressRead" ng-hide="jpVm.edit.address">
+                            <p>{{jpVm.posting.streetAddress}}</p>
+                            <p>{{jpVm.posting.city}}<span ng-show="jpVm.selectedStateProvince && jpVm.posting.city">, </span>{{jpVm.selectedStateProvince.name}}</p>
+                            <p>{{jpVm.selectedCountry.name}}</p>
+                        </div>
+                        <div ng-show="jpVm.edit.address">
+                            <div class="form-group">
+                                <label for="countryId">Country</label>
+                                <div>
+                                    <select name="countryId" id="country" ng-model="jpVm.selectedCountry" ng-options="country.name for country in jpVm.countries track by country.id" ng-change="jpVm.countryChange()"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="stateProvinceId">State/Province</label>
+                                <div>
+                                    <select name="stateProvinceId" id="stateProvince" ng-model="jpVm.selectedStateProvince" ng-options="stateProvince.name for stateProvince in jpVm.stateProvinces track by stateProvince.id"></select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" name="city" class="form-control" id="city" ng-model="jpVm.posting.city" />
+                            </div>
+                            <div class="form-group">
+                                <label for="streetAddress">Street Address</label>
+                                <input type="text" name="streetAddress" class="form-control" id="streetAddress" ng-model="jpVm.posting.streetAddress" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="compensation">Compensation ($)</label>
+                                    <a href="" ng-click="jpVm.fieldEdit('compensation')"><i class="fa fa-pencil" ng-hide="jpVm.edit.compensation"></i></a>
+                                    <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.compensation && jpVm.id"></i></a>
+                                    <p ng-hide="jpVm.edit.compensation">{{jpVm.posting.compensation | currency}}</p>
+                                    <input type="number" name="compensation" class="form-control" id="compensation" ng-model="jpVm.posting.compensation" ng-show="jpVm.edit.compensation" />
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label for="compensation">Compensation Rate</label>
+                                        <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.compensationRate && jpVm.id"></i></a>
+                                    </div>
+                                    <div class="row">
+                                        <select name="compensationRateId" id="compensationRate" ng-model="jpVm.posting.compensationRateId" ng-change="jpVm.fieldEdit('compensationRate')">
+                                            <option value="0" selected>Select rate</option>
+                                            <option value="1">per hour</option>
+                                            <option value="2">per day</option>
+                                            <option value="3">per year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="row fullPartContainer">
+                                        <label for="fullPart">Full- or part-time?</label>
+                                        <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.fullPart && jpVm.id"></i></a>
+                                    </div>
+                                    <div class="row fullPartContainer">
+                                        <select name="fullPartId" id="fullPart" ng-model="jpVm.posting.fullPartId" ng-change="jpVm.fieldEdit('fullPart')">
+                                            <option value="0" selected>Select status</option>
+                                            <option value="1">Part-time</option>
+                                            <option value="2">Full-time</option>
+                                            <option value="3">Part-time to full-time</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label for="contractPermanent">Employment Duration</label>
+                                        <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.contractPermanent && jpVm.id"></i></a>
+                                    </div>
+                                    <div class="row">
+                                        <select name="contractPermanentId" id="contractPermanent" ng-model="jpVm.posting.contractPermanentId" ng-change="jpVm.fieldEdit('contractPermanent')">
+                                            <option value="0" selected>Select duration</option>
+                                            <option value="1">Contract</option>
+                                            <option value="2">Permanent</option>
+                                            <option value="3">Contract-to-hire</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label for="experienceLevel">Experience Level</label>
+                                        <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.experienceLevel && jpVm.id"></i></a>
+                                    </div>
+                                    <div class="row">
+                                        <select name="experienceLevelId" id="experienceLevel" ng-model="jpVm.posting.experienceLevelId" ng-change="jpVm.fieldEdit('experienceLevel')">
+                                            <option value="0" selected>Select level</option>
+                                            <option value="1">Entry level</option>
+                                            <option value="2">Mid-level</option>
+                                            <option value="3">Senior level</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description of Company</label>
+                            <a href="" ng-click="jpVm.fieldEdit('description')"><i class="fa fa-pencil" ng-hide="jpVm.edit.description"></i></a>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.description && jpVm.id"></i></a>
+                            <span ng-bind-html="jpVm.sanitize(jpVm.posting.description)" ng-hide="jpVm.edit.description"></span>
+                            <div ng-show="jpVm.edit.description">
+                                <textarea type="text" name="description" class="form-control ckeditor" id="description" ng-bind-html="jpVm.sanitize(jpVm.posting.description)" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="responsibilities">Position Responsibilities</label>
+                            <a href="" ng-click="jpVm.fieldEdit('responsibilities')"><i class="fa fa-pencil" ng-hide="jpVm.edit.responsibilities"></i></a>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.responsibilities && jpVm.id"></i></a>
+                            <span ng-bind-html="jpVm.sanitize(jpVm.posting.responsibilities)" ng-hide="jpVm.edit.responsibilities"></span>
+                            <div ng-show="jpVm.edit.responsibilities">
+                                <textarea type="text" name="responsibilities" class="form-control ckeditor" id="responsibilities" ng-bind-html="jpVm.sanitize(jpVm.posting.responsibilities)" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="requirements">Required Skills and Experience</label>
+                            <a href="" ng-click="jpVm.fieldEdit('requirements')"><i class="fa fa-pencil" ng-hide="jpVm.edit.requirements"></i></a>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.requirements && jpVm.id"></i></a>
+                            <span ng-bind-html="jpVm.sanitize(jpVm.posting.requirements)" ng-hide="jpVm.edit.requirements"></span>
+                            <div ng-show="jpVm.edit.requirements">
+                                <textarea type="text" name="requirements" class="form-control ckeditor" id="requirements" ng-bind-html="jpVm.sanitize(jpVm.posting.requirements)" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactInformation">Contact Information</label>
+                            <a href="" ng-click="jpVm.fieldEdit('contactInformation')"><i class="fa fa-pencil" ng-hide="jpVm.edit.contactInformation"></i></a>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.contactInformation && jpVm.id"></i></a>
+                            <span ng-bind-html="jpVm.sanitize(jpVm.posting.contactInformation)" ng-hide="jpVm.edit.contactInformation"></span>
+                            <div ng-show="jpVm.edit.contactInformation">
+                                <textarea type="text" name="contactInformation" class="form-control ckeditor" id="contactInformation" ng-bind-html="jpVm.sanitize(jpVm.posting.contactInformation)" rows="5"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobPostingStatusId">Job Posting Status</label>
+                            <select name="jobPostingStatusId" id="jobPostingStatusId" ng-model="jpVm.posting.jobPostingStatusId" ng-change="jpVm.fieldEdit('postingStatus')">
+                                <option value="1">Open</option>
+                                <option value="2">Pending</option>
+                                <option value="3">Closed</option>
+                            </select>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.postingStatus && jpVm.id"></i></a>
+                        </div>
+                        <div class="form-group">
+                            <label>Job Tags</label>
+                            <a href="" ng-click="jpVm.save()"><i class="fa fa-floppy-o" ng-show="jpVm.edit.jobTags && jpVm.id"></i></a>
+                            <ui-select multiple="multiple" id="jobTags" theme="bootstrap" ng-model="jpVm.selectedJobTags" ng-change="jpVm.fieldEdit('jobTags')">
+                                <ui-select-match placeholder="Job Tags">{{$item.keyword}}</ui-select-match>
+                                <ui-select-choices repeat="jobTag in jpVm.jobTags">{{jobTag.keyword}}</ui-select-choices>
+                            </ui-select>
+                        </div>
+                        <p class="hidden datePosted">Date Posted: <span id="date"></span></p>
+                        <input name="id" class="hidden" id="id" />
+                        <button type="button" class="btn btn-primary submit" ng-click="jpVm.save()" ng-hide="jpVm.id">Save</button>
+                        <button type="button" class="btn btn-default cancel" ng-click="jpVm.cancel()">Back to Company</button>
+                        <button type="button" class="btn btn-danger delete" ng-click="jpVm.delete()" ng-show="jpVm.id">Delete</button>
+                    </form>
+                    <!-- end form -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
