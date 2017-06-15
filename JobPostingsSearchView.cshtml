@@ -136,35 +136,6 @@
                                 </div>
                             </div>
                         </uib-tab>
-                        <uib-tab index="5" heading="Upwork.com" ng-click="jpVm.upworkSearch()" active="jpVm.active.upwork">
-                            <div class="search-item-container result-list" id="jobPostingContainer">
-                                <div class="item-row" ng-repeat="posting in jpVm.jobPostings" ng-mousedown="jpVm.clickLog()">
-                                    <a ng-href="{{posting.url}}">
-                                        <div class="item">
-                                            <div class="positionName">
-                                                <h4 class="title">{{posting.title}}</h4>
-                                                <span class="days-ago">
-                                                    <small>Posted {{posting.daysAgo}}</small>
-                                                </span>
-                                            </div>
-                                            <div class="result-info col-s-5 col-xs-6">
-                                                <div class="float-left">
-                                                    <p class="desc">{{posting.duration}}</p>
-                                                    <p class="desc">{{posting.job_type}}</p>
-                                                    <p class="desc" ng-show="posting.skills">Categories: {{posting.skills}}</p>
-                                                </div>
-                                            </div>
-                                            <div class="result-info2 col-s-3 col-xs-6">
-                                                <div class="float-left inline">
-                                                    <p class="desc">{{posting.workload}}</p>
-                                                    <p class="desc">{{posting.snippet}}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                        </uib-tab>
                     </uib-tabset>
 
                     <!-- BEGIN pagination -->
@@ -338,17 +309,11 @@
                     ResultsPerPage: 5,                       // Items per page
                     Radius: null                             // Distance
                 }
-                vm.upworkSearchParameters = {
-                    q: "",                                      // Search String
-                    workload: "",                               // "part_time" or "full_time"
-                    paging: ""                                  // "(currentPage - 1)*itemsPerPage;itemsPerPage"
-                }
                 vm.active = {
                     deploy: true,
                     affiliate: false,
                     indeed: false,
-                    usaJobs: false,
-                    upwork: false
+                    usaJobs: false
                 }
                 vm.searched = false;
                 vm.jobPostings = [];
@@ -366,7 +331,6 @@
                 vm.affiliateSearch = _affiliateSearch;
                 vm.search = _search;
                 vm.indeedSearch = _indeedSearch;
-                //vm.monsterSearch = _monsterSearch;
                 vm.usaJobsSearch = _usaJobsSearch;
                 vm.changeFilter = _changeFilter;
                 vm.changeJobTags = _changeJobTags;
@@ -493,14 +457,8 @@
                         case 2:
                             _indeedSearchSend();
                             break;
-                        //case 3:
-                        //    _monsterSearch();
-                        //    return;
                         case 4:
                             _usaJobsSearchSend();
-                            break;
-                        case 5:
-                            _upworkSearchSend();
                             break;
                         default:
                             break;
@@ -909,11 +867,6 @@
                     if (vm.tabindex == 2) {
                         vm.indeedSearchParameters.l = city + "," + stateProvince;
                         _indeedSearchSend();
-                    }
-                    if (vm.tabindex == 3) {
-                        vm.monsterSearchParameters.zip = zipCode;
-                        vm.monsterSearchParameters.cy = country;
-                        _monsterSearchSend();
                     }
                     if (vm.tabindex == 4) {
                         vm.usaJobsSearchParameters.LocationName = city + "," + stateProvince;
